@@ -1,6 +1,6 @@
 # bundle-cache
 
-Sync bundler files with Amazon S3
+Cache bundle to speed up CI deployments for Ruby applications. Written in Go.
 
 ## Build
 
@@ -13,12 +13,25 @@ go build bundle_cache.go
 
 ## Usage
 
-```
-bundler-cache [download|down|upload|up]
-```
-
-Make sure to provide S3 credentials:
+You will need to have Amazon S3 account. Simply export it for the session:
 
 ```
-S3_ACCESS_KEY=foo S3_SECRET_KEY=bar S3_BUCKET=bundle_cache bundler-cache [action]
+export S3_ACCESS_KEY=key
+export S3_SECRET_KEY=secret
+export S3_BUCKET=mybucket
+```
+
+Then run:
+
+```
+bundler_cache [download|down|upload|up]
+```
+
+Or you can invoke command with one time vars:
+
+```
+S3_ACCESS_KEY=key \
+S3_SECRET_KEY=secret \ 
+S3_BUCKET=bucket \
+bundle_cache [download|upload]
 ```
