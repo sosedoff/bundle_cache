@@ -66,13 +66,13 @@ func transferArchive(file string, url string) {
   s3util.DefaultConfig.AccessKey = os.Getenv("S3_ACCESS_KEY")
   s3util.DefaultConfig.SecretKey = os.Getenv("S3_SECRET_KEY")
 
-  r, err := open(url)
+  r, err := open(file)
   if err != nil {
     fmt.Fprintln(os.Stderr, err)
     os.Exit(1)
   }
 
-  w, err := create(file)
+  w, err := create(url)
   if err != nil {
     fmt.Fprintln(os.Stderr, err)
     os.Exit(1)
@@ -91,20 +91,17 @@ func transferArchive(file string, url string) {
   }
 }
 
-/* Extract archive to path */
 func extractArchive(filename string, path string) bool {
   cmd_mkdir   := fmt.Sprintf("cd %s && mkdir .bundle", path)
   cmd_move    := fmt.Sprintf("mv %s %s/.bundle/bundle_cache.tar.gz", filename, path)
   cmd_extract := fmt.Sprintf("cd %s/.bundle && tar -xzf ./bundle_cache.tar.gz", path)
   cmd_remove  := fmt.Sprintf("rm %s/.bundle/bundle_cache.tar.gz", path)
 
-  /* Create bundle directory */
   if _, err := sh(cmd_mkdir) ; err != nil {
     fmt.Println("Bundle directory '.bundle' already exists")
     return false
   }
 
-  /* Move file */
   if _, err := sh(cmd_move) ; err != nil {
     fmt.Println("Unable to move file")
     return false
