@@ -149,6 +149,7 @@ func upload(bundle_path string, archive_path string, archive_url string) {
 
   cmd := fmt.Sprintf("cd %s && tar -czf %s .", bundle_path, archive_path)
 
+  fmt.Println("Archiving...")
   if out, err := sh(cmd); err != nil {
     fmt.Println("Failed to make archive:", out)
     os.Exit(1)
@@ -166,7 +167,7 @@ func download(path string, bundle_path string, archive_path string, archive_url 
     os.Exit(1)
   }
 
-  fmt.Println("Downloading ", archive_url)
+  fmt.Println("Downloading", archive_url)
   transferArchive(archive_url, archive_path)
 
   fmt.Println("Extracting...")
