@@ -220,6 +220,8 @@ func main() {
     /* Extract */
     fmt.Println("Extracting to:", path)
     extractArchive(archive_path, path)
+
+    os.Exit(0)
   }
 
   printUsage()
