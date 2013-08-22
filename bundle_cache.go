@@ -187,37 +187,29 @@ func main() {
 
   action := args[0]
 
-  /* Check if S3 credentials are set */
   checkS3Credentials()
   
-  /* Get all path information */
   path, _       := os.Getwd()
   name          := filepath.Base(path)
   bundle_path   := fmt.Sprintf("%s/.bundle", path)
   lockfile_path := fmt.Sprintf("%s/Gemfile.lock", path)
 
-  /* Check if lockfile exists */
   if !fileExists(lockfile_path) {
     fmt.Println("Gemfile.lock does not exist")
     os.Exit(1)
   }
 
-  /* Read contents of lockfile */
   lockfile, err := ioutil.ReadFile(lockfile_path)
   if err != nil {
     fmt.Println("Unable to read Gemfile.lock")
     os.Exit(1)
   }
 
-  /* Calculate SHA1 checksum for Gemfile.lock */
-  checksum := calculateChecksum(string(lockfile))
-
-  /* Make archive save filename */
+  checksum     := calculateChecksum(string(lockfile))
   archive_name := fmt.Sprintf("%s_%s_%s.tar.gz", name, checksum, runtime.GOARCH)
   archive_path := fmt.Sprintf("/tmp/%s", archive_name)
   archive_url  := s3url(archive_name)
 
-  /* Check if archive already exists */
   if fileExists(archive_path) {
     if os.Remove(archive_path) != nil {
       fmt.Println("Failed to remove existing archive")
