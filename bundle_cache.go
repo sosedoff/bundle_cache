@@ -14,7 +14,7 @@ import(
   "github.com/kr/s3/s3util"
 )
 
-const VERSION = "0.1.0"
+const VERSION = "0.1.1"
 
 func fileExists(path string) bool {
   _, err := os.Stat(path)
