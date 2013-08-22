@@ -215,7 +215,7 @@ func main() {
   /* Make archive save filename */
   archive_name := fmt.Sprintf("%s_%s_%s.tar.gz", name, checksum, runtime.GOARCH)
   archive_path := fmt.Sprintf("/tmp/%s", archive_name)
-  archive_url  := fmt.Sprintf("https://s3.amazonaws.com/bundle_cache/%s", archive_name)
+  archive_url  := s3url(archive_name)
 
   /* Check if archive already exists */
   if fileExists(archive_path) {
