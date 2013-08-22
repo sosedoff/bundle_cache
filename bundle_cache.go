@@ -141,6 +141,40 @@ func printUsage() {
   os.Exit(2)
 }
 
+func upload(bundle_path string, archive_path string, archive_url string) {
+  if !fileExists(bundle_path) {
+    fmt.Println("Bundle path does not exist")
+    os.Exit(1)
+  }
+
+  cmd := fmt.Sprintf("cd %s && tar -czf %s .", bundle_path, archive_path)
+
+  if out, err := sh(cmd); err != nil {
+    fmt.Println("Failed to make archive:", out)
+    os.Exit(1)
+  }
+
+  fmt.Println("Archived bundle at", archive_path)
+  transferArchive(archive_path, archive_url)
+
+  os.Exit(0)
+}
+
+func download(path string, bundle_path string, archive_path string, archive_url string) {
+  if fileExists(bundle_path) {
+    fmt.Println("Bundle path already exists")
+    os.Exit(1)
+  }
+
+  fmt.Println("Downloading ", archive_url)
+  transferArchive(archive_url, archive_path)
+
+  fmt.Println("Extracting...")
+  extractArchive(archive_path, path)
+
+  os.Exit(0)
+}
+
 func main() {
   args := os.Args[1:]
 
@@ -189,39 +223,11 @@ func main() {
   }
 
   if action == "upload" || action == "up" {
-    if !fileExists(bundle_path) {
-      fmt.Println("Bundle path does not exist")
-      os.Exit(1)
-    }
-
-    cmd := fmt.Sprintf("cd %s && tar -czf %s .", bundle_path, archive_path)
-
-    if out, err := sh(cmd); err != nil {
-      fmt.Println("Failed to make archive:", out)
-      os.Exit(1)
-    }
-
-    fmt.Println("Archived bundle at", archive_path)
-    transferArchive(archive_path, archive_url)
-
-    os.Exit(0)
+    upload(bundle_path, archive_path, archive_url)
   }
 
   if action == "download" || action == "down" {
-    if fileExists(bundle_path) {
-      fmt.Println("Bundle path already exists")
-      os.Exit(0)
-    }
-
-    /* Download archive from S3 */
-    fmt.Println("Downloading from S3:", archive_url)
-    transferArchive(archive_url, archive_path)
-
-    /* Extract */
-    fmt.Println("Extracting to:", path)
-    extractArchive(archive_path, path)
-
-    os.Exit(0)
+    download(path, bundle_path, archive_path, archive_url)
   }
 
   printUsage()
