@@ -145,7 +145,7 @@ func checkS3Credentials() {
 
   for _, v := range required {
     if !envDefined(v) {
-      message = fmt.Sprintf("Please define %s environment variable", v)
+      message := fmt.Sprintf("Please define %s environment variable", v)
       terminate(message, ERR_NO_CREDENTIALS)
     }
   }
@@ -162,7 +162,7 @@ func upload(bundle_path string, archive_path string, archive_url string) {
 
   fmt.Println("Archiving...")
   cmd := fmt.Sprintf("cd %s && tar -czf %s .", bundle_path, archive_path)
-  if out, err := sh(cmd); err != nil {
+  if _, err := sh(cmd); err != nil {
     terminate("Failed to make archive.", 1)
   }
 
