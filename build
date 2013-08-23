@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm ./bundle_cache
+go build bundle_cache.go
