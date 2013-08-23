@@ -29,6 +29,11 @@ func terminate(message string, exit_code int) {
   os.Exit(exit_code)
 }
 
+func terminateWithError(err error, exit_code int) {
+  fmt.Fprintln(os.Stderr, err)
+  os.Exit(exit_code)
+}
+
 func fileExists(path string) bool {
   _, err := os.Stat(path)
   return err == nil
@@ -83,22 +88,22 @@ func transferArchive(file string, url string) {
 
   r, err := open(file)
   if err != nil {
-    terminate(err, 1)
+    terminateWithError(err, 1)
   }
 
   w, err := create(url)
   if err != nil {
-    terminate(err, 1)
+    terminateWithError(err, 1)
   }
 
   _, err = io.Copy(w, r)
   if err != nil {
-    terminate(err, 1)
+    terminateWithError(err, 1)
   }
 
   err = w.Close()
   if err != nil {
-    terminate(err, 1)
+    terminateWithError(err, 1)
   }
 }
 
