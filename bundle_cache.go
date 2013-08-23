@@ -16,6 +16,19 @@ import(
 
 const VERSION = "0.1.1"
 
+const(
+  ERR_WRONG_USAGE    = 2
+  ERR_NO_CREDENTIALS = 3
+  ERR_NO_BUNDLE      = 4
+  ERR_BUNDLE_EXISTS  = 5
+  ERR_NO_GEMLOCK     = 6
+)
+
+func terminate(message string, exit_code int) {
+  fmt.Fprintln(os.Stderr, message)
+  os.Exit(exit_code)
+}
+
 func fileExists(path string) bool {
   _, err := os.Stat(path)
   return err == nil
@@ -132,32 +145,28 @@ func checkS3Credentials() {
 
   for _, v := range required {
     if !envDefined(v) {
-      fmt.Printf("Please define %s environment variable\n", v)
-      os.Exit(2)
+      message = fmt.Sprintf("Please define %s environment variable", v)
+      terminate(message, ERR_NO_CREDENTIALS)
     }
   }
 }
 
 func printUsage() {
-  fmt.Println("Usage: bundle_cache [download|upload]")
-  os.Exit(2)
+  terminate("Usage: bundle_cache [download|upload]", ERR_WRONG_USAGE)
 }
 
 func upload(bundle_path string, archive_path string, archive_url string) {
   if !fileExists(bundle_path) {
-    fmt.Println("Bundle path does not exist")
-    os.Exit(1)
+    terminate("Bundle path does not exist", ERR_NO_BUNDLE)
   }
-
-  cmd := fmt.Sprintf("cd %s && tar -czf %s .", bundle_path, archive_path)
 
   fmt.Println("Archiving...")
+  cmd := fmt.Sprintf("cd %s && tar -czf %s .", bundle_path, archive_path)
   if out, err := sh(cmd); err != nil {
-    fmt.Println("Failed to make archive:", out)
-    os.Exit(1)
+    terminate("Failed to make archive.", 1)
   }
 
-  fmt.Println("Archived bundle at", archive_path)
+  fmt.Println("Transferring...")
   transferArchive(archive_path, archive_url)
 
   os.Exit(0)
@@ -165,11 +174,10 @@ func upload(bundle_path string, archive_path string, archive_url string) {
 
 func download(path string, bundle_path string, archive_path string, archive_url string) {
   if fileExists(bundle_path) {
-    fmt.Println("Bundle path already exists")
-    os.Exit(1)
+    terminate("Bundle path already exists", ERR_BUNDLE_EXISTS)
   }
 
-  fmt.Println("Downloading", archive_url)
+  fmt.Println("Downloading...", archive_url)
   transferArchive(archive_url, archive_path)
 
   fmt.Println("Extracting...")
@@ -195,14 +203,12 @@ func main() {
   lockfile_path := fmt.Sprintf("%s/Gemfile.lock", path)
 
   if !fileExists(lockfile_path) {
-    fmt.Println("Gemfile.lock does not exist")
-    os.Exit(1)
+    terminate("Gemfile.lock does not exist", ERR_NO_GEMLOCK)
   }
 
   lockfile, err := ioutil.ReadFile(lockfile_path)
   if err != nil {
-    fmt.Println("Unable to read Gemfile.lock")
-    os.Exit(1)
+    terminate("Unable to read Gemfile.lock", 1)
   }
 
   checksum     := calculateChecksum(string(lockfile))
@@ -212,8 +218,7 @@ func main() {
 
   if fileExists(archive_path) {
     if os.Remove(archive_path) != nil {
-      fmt.Println("Failed to remove existing archive")
-      os.Exit(1)
+      terminate("Failed to remove existing archive", 1)
     }
   }
 
