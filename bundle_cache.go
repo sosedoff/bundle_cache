@@ -83,26 +83,22 @@ func transferArchive(file string, url string) {
 
   r, err := open(file)
   if err != nil {
-    fmt.Fprintln(os.Stderr, err)
-    os.Exit(1)
+    terminate(err, 1)
   }
 
   w, err := create(url)
   if err != nil {
-    fmt.Fprintln(os.Stderr, err)
-    os.Exit(1)
+    terminate(err, 1)
   }
 
   _, err = io.Copy(w, r)
   if err != nil {
-    fmt.Fprintln(os.Stderr, err)
-    os.Exit(1)
+    terminate(err, 1)
   }
 
   err = w.Close()
   if err != nil {
-    fmt.Fprintln(os.Stderr, err)
-    os.Exit(1)
+    terminate(err, 1)
   }
 }
 
