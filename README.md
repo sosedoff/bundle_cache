@@ -1,6 +1,16 @@
-# bundle-cache
+# bundle_cache
 
 Cache bundle to speed up CI deployments for Ruby applications. Written in Go.
+
+## Overview
+
+When running a CI build, you have a clean system. That means that you have to
+install dependencies with bundler. It takes a lot of time and its very slow.
+Especially when you test suite runs for 20 seconds but bundle install runs for 
+more than 2 minutes. Every single time.
+
+`bundle_chache` is here to help. It uploads a bundle tarball to Amazon S3, so 
+next time installation will be faster and consume less traffic. Double kill.
 
 ## Build
 
@@ -13,7 +23,7 @@ go build bundle_cache.go
 
 ## Usage
 
-You will need to have Amazon S3 account. Simply export it for the session:
+Amazon S3 account is required. You can export variables for the current session:
 
 ```
 export S3_ACCESS_KEY=key
@@ -21,7 +31,7 @@ export S3_SECRET_KEY=secret
 export S3_BUCKET=mybucket
 ```
 
-Then run:
+Usage:
 
 ```
 bundler_cache [download|down|upload|up]
