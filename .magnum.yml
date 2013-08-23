@@ -3,7 +3,7 @@ go: go1.1.1
 install:
   - "mkdir -p $GOPATH/src"
   - "mv $CI_BUILD_PATH $GOPATH/src/"
-  - "export CI_BUILD_PATH $GOPATH/src/bundle_cache"
+  - "export CI_BUILD_PATH=$GOPATH/src/bundle_cache"
   - "go env"
   - "go get"
 
