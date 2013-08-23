@@ -225,5 +225,6 @@ func main() {
     download(path, bundle_path, archive_path, archive_url)
   }
 
+  fmt.Println("Invalid command:", action)
   printUsage()
 }
