@@ -1,6 +1,6 @@
 # bundle_cache
 
-Cache bundle to speed up CI deployments for Ruby applications. Written in Go.
+Cache bundle to speed up CI builds for Ruby applications. Written in Go.
 
 ## Overview
 
