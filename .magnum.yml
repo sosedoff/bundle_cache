@@ -1,11 +1,9 @@
 go: go1.1.1
 
-after_checkout:
+install:
   - "mkdir -p $GOPATH/src"
   - "mv $CI_BUILD_PATH $GOPATH/src/"
   - "export CI_BUILD_PATH $GOPATH/src/bundle_cache"
-
-install:
   - "go env"
   - "go get"
 
