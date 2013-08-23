@@ -1,9 +1,7 @@
 go: go1.1.1
 
 install:
-  - "echo $GOROOT"
-  - "echo $GOPATH"
-  - "export GOPATH=$HOME/go" 
+  - "go env"
   - "go get"
 
 script: ./build
