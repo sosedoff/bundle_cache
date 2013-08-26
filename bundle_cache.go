@@ -14,7 +14,7 @@ import(
   "github.com/kr/s3/s3util"
 )
 
-const VERSION = "0.1.1"
+const VERSION = "0.1.2"
 
 const(
   ERR_WRONG_USAGE    = 2
