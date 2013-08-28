@@ -25,6 +25,13 @@ const(
   ERR_NO_GEMLOCK     = 6
 )
 
+var options struct {
+  Path      string `long:"path"       description:"Path to directory with .bundle"`
+  AccessKey string `long:"access-key" description:"S3 access key"`
+  SecretKey string `long:"secret-key" description:"S3 secrete key"`
+  Bucket    string `long:"bucket"     description:"S3 bucket name"`
+}
+
 func terminate(message string, exit_code int) {
   fmt.Fprintln(os.Stderr, message)
   os.Exit(exit_code)
@@ -143,13 +150,16 @@ func envDefined(name string) bool {
 }
 
 func checkS3Credentials() {
-  required := [3]string { "S3_ACCESS_KEY", "S3_SECRET_KEY", "S3_BUCKET" }
+  if len(options.AccessKey) == 0 && !envDefined("S3_ACCESS_KEY") {
+    terminate("Please provide S3 access key", ERR_NO_CREDENTIALS)
+  }
 
-  for _, v := range required {
-    if !envDefined(v) {
-      message := fmt.Sprintf("Please define %s environment variable", v)
-      terminate(message, ERR_NO_CREDENTIALS)
-    }
+  if len(options.SecretKey) == 0 && !envDefined("S3_SECRET_KEY") {
+    terminate("Please provide S3 secret key", ERR_NO_CREDENTIALS)
+  }
+
+  if len(options.Bucket) == 0 && !envDefined("S3_BUCKET") {
+    terminate("Please provide S3 bucket name", ERR_NO_CREDENTIALS)
   }
 }
 
@@ -189,7 +199,17 @@ func download(path string, bundle_path string, archive_path string, archive_url 
 }
 
 func main() {
-  args := os.Args[1:]
+  new_args, err := flags.ParseArgs(&options, os.Args)
+
+  if err != nil {
+    fmt.Println(err)
+    os.Exit(ERR_WRONG_USAGE)
+  }
+
+  fmt.Println(new_args)
+  fmt.Println(options)
+
+  args := new_args[1:]
 
   if len(args) != 1 {
     printUsage()
