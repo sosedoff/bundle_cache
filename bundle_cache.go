@@ -26,6 +26,7 @@ const(
 )
 
 var options struct {
+  Prefix    string `long:"prefix"     description:"Archive name"`
   Path      string `long:"path"       description:"Path to directory with .bundle"`
   AccessKey string `long:"access-key" description:"S3 access key"`
   SecretKey string `long:"secret-key" description:"S3 secrete key"`
@@ -232,13 +233,16 @@ func main() {
 
   checkS3Credentials()
 
-  path := options.Path
-
-  if len(path) == 0 {
-    path, _ = os.Getwd()
+  if len(options.Path) == 0 {
+    options.Path, _ = os.Getwd()
   }
 
-  name          := filepath.Base(path)
+  if len(options.Prefix) == 0 {
+    options.Prefix = filepath.Base(options.Path)
+  }
+
+  path          := options.Path
+  name          := options.Prefix
   bundle_path   := fmt.Sprintf("%s/.bundle", path)
   lockfile_path := fmt.Sprintf("%s/Gemfile.lock", path)
 
