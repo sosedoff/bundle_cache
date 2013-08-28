@@ -67,7 +67,7 @@ func isURL(s string) bool {
 
 func s3url(filename string) string {
   format := "https://s3.amazonaws.com/%s/%s"
-  url := fmt.Sprintf(format, os.Getenv("S3_BUCKET"), filename)
+  url := fmt.Sprintf(format, options.Bucket, filename)
 
   return url
 }
@@ -91,8 +91,8 @@ func calculateChecksum(buffer string) string {
 }
 
 func transferArchive(file string, url string) {
-  s3util.DefaultConfig.AccessKey = os.Getenv("S3_ACCESS_KEY")
-  s3util.DefaultConfig.SecretKey = os.Getenv("S3_SECRET_KEY")
+  s3util.DefaultConfig.AccessKey = options.AccessKey
+  s3util.DefaultConfig.SecretKey = options.SecretKey
 
   r, err := open(file)
   if err != nil {
@@ -150,16 +150,16 @@ func envDefined(name string) bool {
 }
 
 func checkS3Credentials() {
-  if len(options.AccessKey) == 0 && !envDefined("S3_ACCESS_KEY") {
-    terminate("Please provide S3 access key", ERR_NO_CREDENTIALS)
+  if len(options.AccessKey) == 0 { 
+    terminate("Please provide S3 access key", ERR_NO_CREDENTIALS) 
   }
-
-  if len(options.SecretKey) == 0 && !envDefined("S3_SECRET_KEY") {
-    terminate("Please provide S3 secret key", ERR_NO_CREDENTIALS)
+  
+  if len(options.SecretKey) == 0 { 
+    terminate("Please provide S3 secret key", ERR_NO_CREDENTIALS) 
   }
-
-  if len(options.Bucket) == 0 && !envDefined("S3_BUCKET") {
-    terminate("Please provide S3 bucket name", ERR_NO_CREDENTIALS)
+  
+  if len(options.Bucket) == 0 { 
+    terminate("Please provide S3 bucket name", ERR_NO_CREDENTIALS) 
   }
 }
 
@@ -206,6 +206,19 @@ func main() {
     os.Exit(ERR_WRONG_USAGE)
   }
 
+  if len(options.AccessKey) == 0 && envDefined("S3_ACCESS_KEY") {
+    options.AccessKey = os.Getenv("S3_ACCESS_KEY")
+  }
+
+  if len(options.SecretKey) == 0 && envDefined("S3_SECRET_KEY") {
+    options.SecretKey = os.Getenv("S3_SECRET_KEY")
+  }
+
+  if len(options.Bucket) == 0 && envDefined("S3_BUCKET") {
+    options.Bucket = os.Getenv("S3_BUCKET")
+  }
+
+
   fmt.Println(new_args)
   fmt.Println(options)
 
@@ -218,8 +231,13 @@ func main() {
   action := args[0]
 
   checkS3Credentials()
-  
-  path, _       := os.Getwd()
+
+  path := options.Path
+
+  if len(path) == 0 {
+    path, _ = os.Getwd()
+  }
+
   name          := filepath.Base(path)
   bundle_path   := fmt.Sprintf("%s/.bundle", path)
   lockfile_path := fmt.Sprintf("%s/Gemfile.lock", path)
