@@ -12,6 +12,7 @@ import(
   "runtime"
   "strings"
   "github.com/kr/s3/s3util"
+  "github.com/jessevdk/go-flags"
 )
 
 const VERSION = "0.1.2"
