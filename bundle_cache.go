@@ -219,10 +219,6 @@ func main() {
     options.Bucket = os.Getenv("S3_BUCKET")
   }
 
-
-  fmt.Println(new_args)
-  fmt.Println(options)
-
   args := new_args[1:]
 
   if len(args) != 1 {
@@ -241,10 +237,8 @@ func main() {
     options.Prefix = filepath.Base(options.Path)
   }
 
-  path          := options.Path
-  name          := options.Prefix
-  bundle_path   := fmt.Sprintf("%s/.bundle", path)
-  lockfile_path := fmt.Sprintf("%s/Gemfile.lock", path)
+  bundle_path   := fmt.Sprintf("%s/.bundle", options.Path)
+  lockfile_path := fmt.Sprintf("%s/Gemfile.lock", options.Path)
 
   if !fileExists(lockfile_path) {
     terminate("Gemfile.lock does not exist", ERR_NO_GEMLOCK)
@@ -256,7 +250,7 @@ func main() {
   }
 
   checksum     := calculateChecksum(string(lockfile))
-  archive_name := fmt.Sprintf("%s_%s_%s.tar.gz", name, checksum, runtime.GOARCH)
+  archive_name := fmt.Sprintf("%s_%s_%s.tar.gz", options.Prefix, checksum, runtime.GOARCH)
   archive_path := fmt.Sprintf("/tmp/%s", archive_name)
   archive_url  := s3url(archive_name)
 
@@ -271,7 +265,7 @@ func main() {
   }
 
   if action == "download" || action == "down" {
-    download(path, bundle_path, archive_path, archive_url)
+    download(options.Path, bundle_path, archive_path, archive_url)
   }
 
   fmt.Println("Invalid command:", action)
