@@ -26,11 +26,11 @@ const(
 )
 
 var options struct {
-  Prefix    string `long:"prefix"     description:"Archive name"`
-  Path      string `long:"path"       description:"Path to directory with .bundle"`
-  AccessKey string `long:"access-key" description:"S3 access key"`
-  SecretKey string `long:"secret-key" description:"S3 secrete key"`
-  Bucket    string `long:"bucket"     description:"S3 bucket name"`
+  Prefix    string `long:"prefix"     description:"Custom archive filename (default: current dir)"`
+  Path      string `long:"path"       description:"Path to directory with .bundle (default: current)"`
+  AccessKey string `long:"access-key" description:"S3 Access key"`
+  SecretKey string `long:"secret-key" description:"S3 Secret key"`
+  Bucket    string `long:"bucket"     description:"S3 Bucket name"`
 }
 
 func terminate(message string, exit_code int) {

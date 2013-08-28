@@ -23,25 +23,41 @@ go build bundle_cache.go
 
 ## Usage
 
-Amazon S3 account is required. You can export variables for the current session:
-
 ```
-export S3_ACCESS_KEY=key
-export S3_SECRET_KEY=secret
-export S3_BUCKET=mybucket
-```
-
 Usage:
+  bundle_cache [OPTIONS]
 
-```
-bundler_cache [download|down|upload|up]
+Help Options:
+  -h, --help=       Show this help message
+
+Application Options:
+      --prefix=     Custom archive filename (default: current dir)
+      --path=       Path to directory with .bundle (default: current)
+      --access-key= S3 Access key
+      --secret-key= S3 Secret key
+      --bucket=     S3 Bucket name
 ```
 
-Or you can invoke command with one time vars:
+## License
 
-```
-S3_ACCESS_KEY=key \
-S3_SECRET_KEY=secret \ 
-S3_BUCKET=bucket \
-bundle_cache [download|upload]
-```
+The MIT License (MIT)
+
+Copyright (c) 2013 Dan Sosedoff <dan.sosedoff@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
