@@ -1,4 +1,0 @@
-#!/bin/bash
-
-go build bundle_cache.go
-mv ./bundle_cache ./bundle_cache-$(go env GOOS)_$(go env GOARCH)
