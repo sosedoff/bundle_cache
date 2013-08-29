@@ -169,6 +169,13 @@ func printUsage() {
 }
 
 func upload(bundle_path string, archive_path string, archive_url string) {
+  if envDefined("BUNDLE_CACHE_DOWNLOAD") {
+    if os.Getenv("BUNDLE_CACHE_DOWNLOAD") == "ok" {
+      fmt.Println("Bundle cache downloaded. Skipping upload")
+      return
+    }
+  }
+
   if !fileExists(bundle_path) {
     terminate("Bundle path does not exist", ERR_NO_BUNDLE)
   }
