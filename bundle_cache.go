@@ -194,18 +194,19 @@ func upload(bundle_path string, archive_path string, archive_url string) {
 
 func download(path string, bundle_path string, archive_path string, archive_url string) {
   if fileExists(bundle_path) {
-    terminate("Bundle path already exists", ERR_BUNDLE_EXISTS)
+    terminate("Bundle path already exists, skipping.", 0)
   }
 
+  /* Download archive from S3 */
   fmt.Println("Downloading...", archive_url)
   transferArchive(archive_url, archive_path)
 
+  /* Extract archive into bundle directory */
   fmt.Println("Extracting...")
   extractArchive(archive_path, path)
 
   /* Create a temp file in path to indicate that bundle was cached */
   cache_file := fmt.Sprintf("%s/.bundle_cache", options.Path)
-  
   if !fileExists(cache_file) {
     sh(fmt.Sprintf("touch %s", cache_file))
   }
