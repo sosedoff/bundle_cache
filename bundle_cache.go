@@ -241,7 +241,8 @@ func main() {
   lockfile_path := fmt.Sprintf("%s/Gemfile.lock", options.Path)
 
   if !fileExists(lockfile_path) {
-    terminate("Gemfile.lock does not exist", ERR_NO_GEMLOCK)
+    message := fmt.Sprintf("%s does not exist", lockfile_path)
+    terminate(message, ERR_NO_GEMLOCK)
   }
 
   lockfile, err := ioutil.ReadFile(lockfile_path)
