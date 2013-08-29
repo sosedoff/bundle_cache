@@ -40,6 +40,21 @@ Application Options:
       --bucket=     S3 Bucket name
 ```
 
+Or you can set S3 credentials for current session:
+
+```
+export S3_ACCESS_KEY=MYKEY
+export S3_SECRET_KEY=MYSECRET
+export S3_BUCKET=MYBUCKET
+```
+
+And then run (within project directory):
+
+```
+bundle_cache download
+bundle_cache upload
+```
+
 ## License
 
 The MIT License (MIT)
