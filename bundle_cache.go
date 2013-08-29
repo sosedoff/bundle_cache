@@ -169,11 +169,11 @@ func printUsage() {
 }
 
 func upload(bundle_path string, archive_path string, archive_url string) {
-  if envDefined("BUNDLE_CACHE_DOWNLOAD") {
-    if os.Getenv("BUNDLE_CACHE_DOWNLOAD") == "ok" {
-      fmt.Println("Bundle cache downloaded. Skipping upload")
-      return
-    }
+  cache_file := fmt.Sprintf("%s/.bundle_cache", options.Path)
+
+  if fileExists(cache_file) {
+    fmt.Println("Your bundle is cached. Skipping...")
+    os.Exit(0)
   }
 
   if !fileExists(bundle_path) {
@@ -203,10 +203,11 @@ func download(path string, bundle_path string, archive_path string, archive_url 
   fmt.Println("Extracting...")
   extractArchive(archive_path, path)
 
-  /* Set download result veriable */
-  err := os.Setenv("BUNDLE_CACHE_DOWNLOAD", "ok")
-  if err != nil {
-    fmt.Println("Failed to set BUNDLE_CACHE_DOWNLOAD variable")
+  /* Create a temp file in path to indicate that bundle was cached */
+  cache_file := fmt.Sprintf("%s/.bundle_cache", options.Path)
+  
+  if !fileExists(cache_file) {
+    sh(fmt.Sprintf("touch %s", cache_file))
   }
 
   os.Exit(0)
