@@ -196,6 +196,12 @@ func download(path string, bundle_path string, archive_path string, archive_url 
   fmt.Println("Extracting...")
   extractArchive(archive_path, path)
 
+  /* Set download result veriable */
+  err := os.Setenv("BUNDLE_CACHE_DOWNLOAD", "ok")
+  if err != nil {
+    fmt.Println("Failed to set BUNDLE_CACHE_DOWNLOAD variable")
+  }
+
   os.Exit(0)
 }
 
