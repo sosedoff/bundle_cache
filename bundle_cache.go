@@ -15,7 +15,7 @@ import(
   "github.com/jessevdk/go-flags"
 )
 
-const VERSION = "0.1.2"
+const VERSION = "0.2.0"
 
 const(
   ERR_WRONG_USAGE    = 2
