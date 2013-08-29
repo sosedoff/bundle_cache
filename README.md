@@ -12,6 +12,8 @@ more than 2 minutes. Every single time.
 `bundle_chache` is here to help. It uploads a bundle tarball to Amazon S3, so 
 next time installation will be faster and consume less traffic. Double kill.
 
+Example: 204.17 seconds bundle install reduced to 15.96 seconds
+
 ## Build
 
 Make sure you have Go 1.1.1 installed. Then run:
