@@ -98,28 +98,25 @@ func calculateChecksum(buffer string) string {
   return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func transferArchive(file string, url string) {
-  s3util.DefaultConfig.AccessKey = options.AccessKey
-  s3util.DefaultConfig.SecretKey = options.SecretKey
-
+func transferArchive(file string, url string, fail_status int) {
   r, err := open(file)
   if err != nil {
-    terminateWithError(err, 1)
+    terminateWithError(err, fail_status)
   }
 
   w, err := create(url)
   if err != nil {
-    terminateWithError(err, 1)
+    terminateWithError(err, fail_status)
   }
 
   _, err = io.Copy(w, r)
   if err != nil {
-    terminateWithError(err, 1)
+    terminateWithError(err, fail_status)
   }
 
   err = w.Close()
   if err != nil {
-    terminateWithError(err, 1)
+    terminateWithError(err, fail_status)
   }
 }
 
@@ -181,6 +178,9 @@ func checkS3Credentials() {
   if len(options.Bucket) == 0 { 
     terminate("Please provide S3 bucket name", ERR_NO_CREDENTIALS) 
   }
+
+  s3util.DefaultConfig.AccessKey = options.AccessKey
+  s3util.DefaultConfig.SecretKey = options.SecretKey
 }
 
 func printUsage() {
@@ -203,7 +203,7 @@ func upload() {
   }
 
   fmt.Println("Uploading bundle to S3...")
-  transferArchive(options.ArchivePath, options.ArchiveUrl)
+  transferArchive(options.ArchivePath, options.ArchiveUrl, 0)
 
   fmt.Println("Done")
   os.Exit(0)
@@ -215,7 +215,7 @@ func download() {
   }
 
   fmt.Println("Downloading bundle from S3...", options.ArchiveUrl)
-  transferArchive(options.ArchiveUrl, options.ArchivePath)
+  transferArchive(options.ArchiveUrl, options.ArchivePath, 0)
 
   /* Extract archive into bundle directory */
   fmt.Println("Extracting...")
