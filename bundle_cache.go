@@ -18,6 +18,7 @@ import(
 const VERSION = "0.2.0"
 
 const(
+  ERR_OK             = 0
   ERR_WRONG_USAGE    = 2
   ERR_NO_CREDENTIALS = 3
   ERR_NO_BUNDLE      = 4
@@ -26,11 +27,17 @@ const(
 )
 
 var options struct {
-  Prefix    string `long:"prefix"     description:"Custom archive filename (default: current dir)"`
-  Path      string `long:"path"       description:"Path to directory with .bundle (default: current)"`
-  AccessKey string `long:"access-key" description:"S3 Access key"`
-  SecretKey string `long:"secret-key" description:"S3 Secret key"`
-  Bucket    string `long:"bucket"     description:"S3 Bucket name"`
+  Prefix        string `long:"prefix"     description:"Custom archive filename (default: current dir)"`
+  Path          string `long:"path"       description:"Path to directory with .bundle (default: current)"`
+  AccessKey     string `long:"access-key" description:"S3 Access key"`
+  SecretKey     string `long:"secret-key" description:"S3 Secret key"`
+  Bucket        string `long:"bucket"     description:"S3 Bucket name"`
+  BundlePath    string
+  LockFilePath  string
+  CacheFilePath string
+  ArchiveName   string
+  ArchivePath   string
+  ArchiveUrl    string
 }
 
 func terminate(message string, exit_code int) {
@@ -151,6 +158,18 @@ func envDefined(name string) bool {
 }
 
 func checkS3Credentials() {
+  if len(options.AccessKey) == 0 && envDefined("S3_ACCESS_KEY") {
+    options.AccessKey = os.Getenv("S3_ACCESS_KEY")
+  }
+
+  if len(options.SecretKey) == 0 && envDefined("S3_SECRET_KEY") {
+    options.SecretKey = os.Getenv("S3_SECRET_KEY")
+  }
+
+  if len(options.Bucket) == 0 && envDefined("S3_BUCKET") {
+    options.Bucket = os.Getenv("S3_BUCKET")
+  }
+
   if len(options.AccessKey) == 0 { 
     terminate("Please provide S3 access key", ERR_NO_CREDENTIALS) 
   }
@@ -168,49 +187,46 @@ func printUsage() {
   terminate("Usage: bundle_cache [download|upload]", ERR_WRONG_USAGE)
 }
 
-func upload(bundle_path string, archive_path string, archive_url string) {
-  cache_file := fmt.Sprintf("%s/.bundle_cache", options.Path)
-
-  if fileExists(cache_file) {
-    fmt.Println("Your bundle is cached. Skipping...")
-    os.Exit(0)
+func upload() {
+  if fileExists(options.CacheFilePath) {
+    terminate("Your bundle is cached, skipping.", ERR_OK)
   }
 
-  if !fileExists(bundle_path) {
+  if !fileExists(options.BundlePath) {
     terminate("Bundle path does not exist", ERR_NO_BUNDLE)
   }
 
   fmt.Println("Archiving...")
-  cmd := fmt.Sprintf("cd %s && tar -czf %s .", bundle_path, archive_path)
+  cmd := fmt.Sprintf("cd %s && tar -czf %s .", options.BundlePath, options.ArchivePath)
   if _, err := sh(cmd); err != nil {
     terminate("Failed to make archive.", 1)
   }
 
-  fmt.Println("Transferring...")
-  transferArchive(archive_path, archive_url)
+  fmt.Println("Uploading bundle to S3...")
+  transferArchive(options.ArchivePath, options.ArchiveUrl)
 
+  fmt.Println("Done")
   os.Exit(0)
 }
 
-func download(path string, bundle_path string, archive_path string, archive_url string) {
-  if fileExists(bundle_path) {
+func download() {
+  if fileExists(options.BundlePath) {
     terminate("Bundle path already exists, skipping.", 0)
   }
 
-  /* Download archive from S3 */
-  fmt.Println("Downloading...", archive_url)
-  transferArchive(archive_url, archive_path)
+  fmt.Println("Downloading bundle from S3...", options.ArchiveUrl)
+  transferArchive(options.ArchiveUrl, options.ArchivePath)
 
   /* Extract archive into bundle directory */
   fmt.Println("Extracting...")
-  extractArchive(archive_path, path)
+  extractArchive(options.ArchivePath, options.Path)
 
   /* Create a temp file in path to indicate that bundle was cached */
-  cache_file := fmt.Sprintf("%s/.bundle_cache", options.Path)
-  if !fileExists(cache_file) {
-    sh(fmt.Sprintf("touch %s", cache_file))
+  if !fileExists(options.CacheFilePath) {
+    sh(fmt.Sprintf("touch %s", options.CacheFilePath))
   }
 
+  fmt.Println("Done")
   os.Exit(0)
 }
 
@@ -220,18 +236,6 @@ func main() {
   if err != nil {
     fmt.Println(err)
     os.Exit(ERR_WRONG_USAGE)
-  }
-
-  if len(options.AccessKey) == 0 && envDefined("S3_ACCESS_KEY") {
-    options.AccessKey = os.Getenv("S3_ACCESS_KEY")
-  }
-
-  if len(options.SecretKey) == 0 && envDefined("S3_SECRET_KEY") {
-    options.SecretKey = os.Getenv("S3_SECRET_KEY")
-  }
-
-  if len(options.Bucket) == 0 && envDefined("S3_BUCKET") {
-    options.Bucket = os.Getenv("S3_BUCKET")
   }
 
   args := new_args[1:]
@@ -252,36 +256,38 @@ func main() {
     options.Prefix = filepath.Base(options.Path)
   }
 
-  bundle_path   := fmt.Sprintf("%s/.bundle", options.Path)
-  lockfile_path := fmt.Sprintf("%s/Gemfile.lock", options.Path)
+  options.BundlePath    = fmt.Sprintf("%s/.bundle", options.Path)
+  options.LockFilePath  = fmt.Sprintf("%s/Gemfile.lock", options.Path)
+  options.CacheFilePath = fmt.Sprintf("%s/.bundle_cache", options.Path)
 
-  if !fileExists(lockfile_path) {
-    message := fmt.Sprintf("%s does not exist", lockfile_path)
+  if !fileExists(options.LockFilePath) {
+    message := fmt.Sprintf("%s does not exist", options.LockFilePath)
     terminate(message, ERR_NO_GEMLOCK)
   }
 
-  lockfile, err := ioutil.ReadFile(lockfile_path)
+  lockfile, err := ioutil.ReadFile(options.LockFilePath)
   if err != nil {
     terminate("Unable to read Gemfile.lock", 1)
   }
 
-  checksum     := calculateChecksum(string(lockfile))
-  archive_name := fmt.Sprintf("%s_%s_%s.tar.gz", options.Prefix, checksum, runtime.GOARCH)
-  archive_path := fmt.Sprintf("/tmp/%s", archive_name)
-  archive_url  := s3url(archive_name)
+  checksum  := calculateChecksum(string(lockfile))
 
-  if fileExists(archive_path) {
-    if os.Remove(archive_path) != nil {
+  options.ArchiveName = fmt.Sprintf("%s_%s_%s.tar.gz", options.Prefix, checksum, runtime.GOARCH)
+  options.ArchivePath = fmt.Sprintf("/tmp/%s", options.ArchiveName)
+  options.ArchiveUrl  = s3url(options.ArchiveName)
+
+  if fileExists(options.ArchivePath) {
+    if os.Remove(options.ArchivePath) != nil {
       terminate("Failed to remove existing archive", 1)
     }
   }
 
-  if action == "upload" || action == "up" {
-    upload(bundle_path, archive_path, archive_url)
+  if action == "upload" {
+    upload()
   }
 
-  if action == "download" || action == "down" {
-    download(options.Path, bundle_path, archive_path, archive_url)
+  if action == "download" {
+    download()
   }
 
   fmt.Println("Invalid command:", action)
