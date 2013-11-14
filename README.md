@@ -23,19 +23,6 @@ go get
 go build bundle_cache.go
 ```
 
-## Install
-
-You can download a prebuilt binaries:
-
-- [bundle_cache](https://s3.amazonaws.com/bundle-cache-builds/bundle_cache) - For Linux
-- [bundle_cache-darwin](https://s3.amazonaws.com/bundle-cache-builds/bundle_cache-darwin) - For Mac (10.8)
-
-Once downloaded, add executable permissions:
-
-```
-chmod +x ./bundle_cache
-```
-
 ## Usage
 
 ```
