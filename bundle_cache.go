@@ -258,7 +258,7 @@ func main() {
 
   options.BundlePath    = fmt.Sprintf("%s/.bundle", options.Path)
   options.LockFilePath  = fmt.Sprintf("%s/Gemfile.lock", options.Path)
-  options.CacheFilePath = fmt.Sprintf("%s/.bundle_cache", options.Path)
+  options.CacheFilePath = fmt.Sprintf("%s/.cache", options.BundlePath)
 
   if !fileExists(options.LockFilePath) {
     message := fmt.Sprintf("%s does not exist", options.LockFilePath)
