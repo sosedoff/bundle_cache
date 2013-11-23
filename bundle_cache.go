@@ -230,7 +230,7 @@ func download() {
   os.Exit(0)
 }
 
-func main() {
+func getAction() string {
   new_args, err := flags.ParseArgs(&options, os.Args)
 
   if err != nil {
@@ -244,10 +244,10 @@ func main() {
     printUsage()
   }
 
-  action := args[0]
+  return args[0] 
+}
 
-  checkS3Credentials()
-
+func setOptions() {
   if len(options.Path) == 0 {
     options.Path, _ = os.Getwd()
   }
@@ -259,18 +259,15 @@ func main() {
   options.BundlePath    = fmt.Sprintf("%s/.bundle", options.Path)
   options.LockFilePath  = fmt.Sprintf("%s/Gemfile.lock", options.Path)
   options.CacheFilePath = fmt.Sprintf("%s/.cache", options.BundlePath)
+}
 
-  if !fileExists(options.LockFilePath) {
-    message := fmt.Sprintf("%s does not exist", options.LockFilePath)
-    terminate(message, ERR_NO_GEMLOCK)
-  }
-
+func setArchiveOptions() {
   lockfile, err := ioutil.ReadFile(options.LockFilePath)
   if err != nil {
     terminate("Unable to read Gemfile.lock", 1)
   }
-
-  checksum  := calculateChecksum(string(lockfile))
+  
+  checksum := calculateChecksum(string(lockfile))
 
   options.ArchiveName = fmt.Sprintf("%s_%s_%s.tar.gz", options.Prefix, checksum, runtime.GOARCH)
   options.ArchivePath = fmt.Sprintf("/tmp/%s", options.ArchiveName)
@@ -281,7 +278,23 @@ func main() {
       terminate("Failed to remove existing archive", 1)
     }
   }
+}
 
+func checkGemlock() {
+  if !fileExists(options.LockFilePath) {
+    message := fmt.Sprintf("%s does not exist", options.LockFilePath)
+    terminate(message, ERR_NO_GEMLOCK)
+  }
+}
+
+func main() {
+  action := getAction()
+
+  checkS3Credentials()
+  setOptions()
+  checkGemlock()
+  setArchiveOptions()
+  
   if action == "upload" {
     upload()
   }
