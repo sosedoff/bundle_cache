@@ -55,33 +55,6 @@ bundle_cache download
 bundle_cache upload
 ```
 
-### Using on Travis CI
-
-First, encrypt S3 credentials:
-
-```
-travis encrypt --add env.global S3_ACCESS_KEY=MYKEY
-travis encrypt --add env.global S3_SECRET_KEY=MYSECRET
-travis encrypt --add env.global S3_BUCKET=MYBUCKET
-```
-
-Then modify your config:
-
-```yml
-before_install:
-  # replace this with your url, or leave as is
-  - wget https://s3.amazonaws.com/bundle-cache-builds/bundle_cache
-  - chmod +x ./bundle_cache
-  - sudo mv ./bundle_cache /usr/bin
-  - bundle_cache download ; echo 1
-
-install:
-  - bundle install --deployment --path .bundle
-
-after_script:
-  - bundle_cache upload
-```
-
 ## License
 
 The MIT License (MIT)
