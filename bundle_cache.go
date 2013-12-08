@@ -280,7 +280,7 @@ func setArchiveOptions() {
   }
 }
 
-func checkGemlock() {
+func checkGemlockFile() {
   if !fileExists(options.LockFilePath) {
     message := fmt.Sprintf("%s does not exist", options.LockFilePath)
     terminate(message, ERR_NO_GEMLOCK)
@@ -289,10 +289,10 @@ func checkGemlock() {
 
 func main() {
   action := getAction()
-  
+
   checkS3Credentials()
   setOptions()
-  checkGemlock()
+  checkGemlockFile()
   setArchiveOptions()
 
   switch action {
