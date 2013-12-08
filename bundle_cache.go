@@ -289,20 +289,19 @@ func checkGemlock() {
 
 func main() {
   action := getAction()
-
+  
   checkS3Credentials()
   setOptions()
   checkGemlock()
   setArchiveOptions()
-  
-  if action == "upload" {
-    upload()
-  }
 
-  if action == "download" {
+  switch action {
+  default:
+    fmt.Println("Invalid command:", action)
+    printUsage()
+  case "upload":
+    upload()
+  case "download":
     download()
   }
-
-  fmt.Println("Invalid command:", action)
-  printUsage()
 }
