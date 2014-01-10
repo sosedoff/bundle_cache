@@ -29,9 +29,9 @@ const(
 var options struct {
   Prefix        string `long:"prefix"     description:"Custom archive filename (default: current dir)"`
   Path          string `long:"path"       description:"Path to directory with .bundle (default: current)"`
-  AccessKey     string `long:"access-key" description:"S3 Access key"`
-  SecretKey     string `long:"secret-key" description:"S3 Secret key"`
-  Bucket        string `long:"bucket"     description:"S3 Bucket name"`
+  AccessKey     string `long:"access-key" description:"AmazonS3 Access key"`
+  SecretKey     string `long:"secret-key" description:"AmazonS3 Secret key"`
+  Bucket        string `long:"bucket"     description:"AmazonS3 Bucket name"`
   BundlePath    string
   LockFilePath  string
   CacheFilePath string
