@@ -1,6 +1,6 @@
 # bundle_cache
 
-Cache bundle to speed up CI builds for Ruby applications. Written in Go.
+Speed up CI builds by caching rubygems bundle to Amazon S3.
 
 ## Overview
 
@@ -16,7 +16,7 @@ Example: 204.17 seconds bundle install reduced to 15.96 seconds
 
 ## Build
 
-Make sure you have Go 1.1.1 installed and `GOPATH` is set. Then run:
+Make sure you have Go 1.1+ installed and `GOPATH` is set. Then run:
 
 ```
 go get
